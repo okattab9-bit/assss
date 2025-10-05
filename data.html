@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data - Meteor Madness</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin:0; padding:0; font-family:'Poppins','Segoe UI',sans-serif;
+    color:#f0f0f0; background:#0b0b0f; overflow-x:hidden;
+  }
+
+  /* Navbar */
+  nav {
+    display:flex; justify-content:center; gap:15px; padding:12px 25px;
+    background: rgba(255,255,255,0.05); backdrop-filter: blur(12px);
+    border-radius:30px; box-shadow:0 8px 25px rgba(0,0,0,0.5);
+    position: fixed; top:15px; left:50%; transform:translateX(-50%); z-index:1000;
+  }
+  nav a {
+    text-decoration:none; padding:10px 20px; font-weight:600; border-radius:20px;
+    transition: all 0.3s ease; color:#c0a0ff; background: rgba(255,255,255,0.08);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  nav a:hover, nav a.active {
+    background: linear-gradient(135deg,#b16eff,#8f5aff); color:#fff;
+    transform: translateY(-3px) scale(1.05);
+    box-shadow:0 8px 20px rgba(177,110,255,0.5);
+  }
+
+  /* Hero */
+  .hero {
+    position:relative; background: linear-gradient(135deg,#5e2ca5,#8f5aff);
+    padding:120px 20px 60px; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center; overflow:hidden;
+  }
+  .hero h1 {
+    font-size:3rem; background: linear-gradient(135deg,#ff73ff,#8f5aff);
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:20px;
+  }
+  .hero p { font-size:1.2rem; max-width:700px; margin:auto; line-height:1.6; color:#e0e0ff; margin-bottom:30px; }
+
+  /* Main container */
+  main.container {
+    max-width:1200px; margin:auto; padding:50px 20px;
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:30px;
+  }
+
+  /* Data Cards */
+  .data-card {
+    background: linear-gradient(145deg, rgba(25,15,50,0.95), rgba(45,25,70,0.95));
+    border-radius:25px; padding:30px 25px; box-shadow:0 20px 50px rgba(0,0,0,0.7);
+    transition: transform 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
+    border:1px solid rgba(255,255,255,0.08); position:relative; overflow:hidden;
+  }
+  .data-card::before {
+    content:""; position:absolute; top:0; left:0; width:100%; height:100%;
+    background: linear-gradient(120deg, rgba(255,255,255,0.05), rgba(0,0,0,0));
+    opacity:0; transition:opacity 0.5s ease; border-radius:25px;
+  }
+  .data-card:hover::before { opacity:1; }
+
+  .data-card:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow:0 35px 70px rgba(177,110,255,0.6),0 10px 30px rgba(0,0,0,0.5);
+    background: linear-gradient(145deg, rgba(45,25,70,0.95), rgba(90,50,150,0.95));
+  }
+
+  .data-card h3 {
+    color:#ff85f0; font-size:1.6rem; margin-bottom:15px; display:flex;
+    align-items:center; gap:12px;
+  }
+  .data-card h3::before { content:""; }
+
+  .data-card ul { list-style:none; padding-left:0; }
+  .data-card ul li {
+    padding:8px 0; line-height:1.6; position:relative; font-size:1rem; color:#ddd;
+  }
+  .data-card ul li::before {
+    content:"✔"; color:#b16eff; position:absolute; left:-25px; font-weight:bold;
+  }
+  .data-card p { margin-bottom:12px; color:#ccc; }
+
+  /* Footer */
+  footer { margin-top:50px; padding:20px 0; text-align:center; color:#aaa; font-size:0.95rem; }
+
+  /* Media Queries */
+  @media(max-width:768px){
+    main.container{gap:20px; padding:30px 15px;}
+    .hero h1{font-size:2.2rem;}
+    .hero p{font-size:1.1rem;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/">Home</a>
+  <a href="/about">About</a>
+  <a href="/data" class="active">Data</a>
+  <a href="/idea">Idea</a>
+  <a href="/simulation">Simulation</a>
+  <a href="/team">Team</a>
+</nav>
+
+<div class="hero">
+  <h1>Meteor Simulation Data</h1>
+  <p>All the key formulas, laws, and parameters used to calculate meteor impacts and effects on Earth, presented clearly and visually.</p>
+</div>
+
+<main class="container">
+  <div class="data-card">
+    <h3>Newton's Laws of Motion</h3>
+    <p>Determine the meteor's trajectory and acceleration.</p>
+    <ul>
+      <li>Force: F = m × a</li>
+      <li>Velocity: v = v₀ + a × t</li>
+      <li>Displacement: s = v₀ × t + 0.5 × a × t²</li>
+    </ul>
+  </div>
+
+  <div class="data-card">
+    <h3>Kinetic Energy</h3>
+    <p>Energy released on impact.</p>
+    <ul>
+      <li>KE = 0.5 × m × v²</li>
+      <li>m = mass of meteor (kg)</li>
+      <li>v = velocity (m/s)</li>
+    </ul>
+  </div>
+
+  <div class="data-card">
+    <h3>Impact Crater Estimation</h3>
+    <p>Approximate crater size after impact.</p>
+    <ul>
+      <li>D ≈ 1.8 × size × (KE / 1e12)^0.25 (meters)</li>
+      <li>size = meteor diameter (m)</li>
+      <li>KE = kinetic energy (J)</li>
+    </ul>
+  </div>
+
+  <div class="data-card">
+    <h3>Meteor Parameters</h3>
+    <p>Factors affecting the simulation.</p>
+    <ul>
+      <li>Density by composition: rocky (~3000 kg/m³), metallic (~7800 kg/m³), icy (~1000 kg/m³)</li>
+      <li>Entry altitude (km)</li>
+      <li>Impact direction: N, S, E, W, NE, NW, SE, SW</li>
+      <li>Time to impact: altitude / speed</li>
+    </ul>
+  </div>
+
+  <div class="data-card">
+    <h3>Simulation Tips</h3>
+    <p>How to adjust parameters for realistic results:</p>
+    <ul>
+      <li>Larger meteors = larger craters & more energy release</li>
+      <li>Higher speed = exponential increase in energy</li>
+      <li>Metallic composition = heavier & faster impact</li>
+      <li>Entry angle affects crater shape & debris spread</li>
+    </ul>
+  </div>
+</main>
+
+<footer>
+  <p>© 2025 Meteor Madness | All Rights Reserved</p>
+</footer>
+
+</body>
+</html>

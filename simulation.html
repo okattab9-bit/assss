@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meteor Simulation 🌍</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* ===== Body & Layout ===== */
+body {
+  margin:0; padding:0; font-family:'Poppins','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+  color:#fff; text-align:center; overflow-x:hidden; background:#0b0b0f; position: relative;
+}
+canvas#starCanvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; background: transparent; }
+nav { display:flex; justify-content:center; gap:15px; padding:12px 25px; background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border-radius:30px; box-shadow:0 8px 25px rgba(0,0,0,0.5); position: fixed; top:15px; left:50%; transform:translateX(-50%); z-index:1000; flex-wrap:wrap; }
+nav a { text-decoration:none; padding:10px 20px; font-weight:600; border-radius:20px; transition: all 0.3s ease; color:#c0a0ff; background: rgba(255,255,255,0.08); }
+nav a:hover, nav a.active { background: linear-gradient(135deg,#b16eff,#8f5aff); color:#fff; transform: translateY(-3px) scale(1.05); box-shadow: 0 8px 20px rgba(177,110,255,0.5); }
+.hero { width:100%; padding:120px 20px 60px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; position:relative; z-index:1; }
+.hero h1 { font-size:3rem; font-weight:700; margin-bottom:15px; background: linear-gradient(90deg,#b16eff,#8f5aff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.hero p { font-size:1.5rem; opacity:0.9; max-width:700px; }
+main.container { max-width:900px; margin:50px auto 50px; padding:20px 15px; display:flex; flex-direction:column; gap:25px; z-index:1; position:relative; }
+section { background: rgba(30,20,50,0.85); padding:25px 30px; border-radius:25px; box-shadow:0 20px 50px rgba(0,0,0,0.6); transition: transform 0.4s ease, box-shadow 0.4s ease; }
+section:hover { transform: translateY(-5px); box-shadow:0 30px 60px rgba(0,0,0,0.7); }
+form { display:flex; flex-direction:column; gap:12px; max-width:600px; margin:0 auto; }
+form label { text-align:left; font-weight:bold; color:#fff; }
+form input, form select { width:100%; padding:10px 12px; border-radius:12px; border:none; background-color: #1c1c2e; color:#fff; }
+form input:focus, form select:focus { outline:none; box-shadow:0 0 8px #b16eff; }
+form button { padding:12px 25px; border-radius:12px; border:none; background: linear-gradient(135deg,#b16eff,#8f5aff); color:#fff; font-weight:bold; cursor:pointer; transition:all 0.3s ease; }
+form button:hover { transform:scale(1.05); box-shadow:0 0 15px rgba(177,110,255,0.6); }
+#simulationCanvas { display:block; border-radius:20px; background:transparent; max-width:100%; }
+@media(max-width:768px){
+  main.container { padding:15px; }
+  form { max-width:100%; }
+  #simulationCanvas { width:95%; height:auto; }
+  .hero h1 { font-size:2.2rem; }
+  .hero p { font-size:1.2rem; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="starCanvas"></canvas>
+
+<nav>
+  <a href="/">Home</a>
+  <a href="/about">About</a>
+  <a href="/data">Data</a>
+  <a href="/idea">Idea</a>
+  <a href="/simulation" class="active">Simulation</a>
+  <a href="/team">Team</a>
+</nav>
+
+<div class="hero">
+  <h1>Explore Meteor Impacts in Real-Time!</h1>
+  <p>Enter the parameters of a meteor and watch a realistic simulation of its impact on Earth.</p>
+</div>
+
+<main class="container">
+<section style="max-width:700px; margin:50px auto;">
+<h2>Run Meteor Simulation</h2>
+<form id="simulationForm" method="POST" action="/simulation">
+<label>Meteor Size (px): <input type="number" name="size" id="size" placeholder="e.g. 50" required></label>
+<label>Speed (km/s): <input type="number" name="speed" id="speed" placeholder="e.g. 20" required></label>
+<label>Impact Direction:
+<select name="direction" id="direction" required>
+<option value="N">North</option>
+<option value="S">South</option>
+<option value="E">East</option>
+<option value="W">West</option>
+<option value="NE">North-East</option>
+<option value="NW">North-West</option>
+<option value="SE">South-East</option>
+<option value="SW">South-West</option>
+</select></label>
+<label>Composition:
+<select name="composition" id="composition" required>
+<option value="rocky">Rocky</option>
+<option value="metallic">Metallic</option>
+<option value="icy">Icy</option>
+</select></label>
+<label>Altitude of Entry (km): <input type="number" name="altitude" id="altitude" placeholder="e.g. 80" required></label>
+<button type="button" onclick="runSimulation()" id="runBtn" disabled>Run Simulation</button>
+</form>
+
+<p id="resultsText">Enter values and run the simulation.</p>
+<button id="showResultsBtn" onclick="goToResults()" style="display:none; margin-top:15px; padding:12px 25px; border-radius:12px; border:none; background: linear-gradient(135deg,#b16eff,#8f5aff); color:#fff; font-weight:bold; cursor:pointer; transition:all 0.3s ease;">Show Results</button>
+
+<div style="display:flex; justify-content:center; margin-top:20px;">
+  <canvas id="simulationCanvas" width="700" height="400"></canvas>
+</div>
+</section>
+</main>
+
+<script>
+// ===== Stars Background =====
+const starCanvas=document.getElementById('starCanvas');
+const sctx=starCanvas.getContext('2d');
+starCanvas.width=window.innerWidth;
+starCanvas.height=window.innerHeight;
+const stars=[];
+for(let i=0;i<200;i++){stars.push({x:Math.random()*starCanvas.width,y:Math.random()*starCanvas.height,r:Math.random()*1.5,brightness:Math.random()});}
+function drawStars(){ sctx.clearRect(0,0,starCanvas.width,starCanvas.height); stars.forEach(s=>{ sctx.beginPath(); sctx.arc(s.x,s.y,s.r,0,Math.PI*2); sctx.fillStyle=`rgba(255,255,255,${s.brightness})`; sctx.fill(); s.brightness += (Math.random()-0.5)*0.02; if(s.brightness>1)s.brightness=1; if(s.brightness<0.2)s.brightness=0.2;}); requestAnimationFrame(drawStars);}
+drawStars();
+
+// ===== Simulation =====
+const canvas=document.getElementById('simulationCanvas');
+const ctx=canvas.getContext('2d');
+const earthImg=new Image(); earthImg.src="{{ url_for('static', filename='assets/earth.png') }}";
+const meteorImg=new Image(); meteorImg.src="{{ url_for('static', filename='assets/meteor.png') }}";
+
+let animationId;
+let simulationData={};
+document.getElementById('runBtn').disabled=true;
+let imagesLoaded=0;
+earthImg.onload = meteorImg.onload = ()=>{ imagesLoaded++; if(imagesLoaded===2) document.getElementById('runBtn').disabled=false; };
+
+function goToResults(){
+    const size = document.getElementById('size').value;
+    const speed = document.getElementById('speed').value;
+    const direction = document.getElementById('direction').value;
+    const composition = document.getElementById('composition').value;
+    const altitude = document.getElementById('altitude').value;
+
+    if(!size || !speed || !direction || !composition || !altitude){
+        alert("Please fill all fields before viewing results!");
+        return;
+    }
+
+    fetch('/simulation', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: `size=${size}&speed=${speed}&direction=${direction}&composition=${composition}&altitude=${altitude}`
+    })
+    .then(response => {
+        if(response.redirected){
+            window.location.href = response.url;
+        }
+    });
+}
+
+function runSimulation(){
+  if(animationId) cancelAnimationFrame(animationId);
+  const size=Number(document.getElementById('size').value);
+  const speed=Number(document.getElementById('speed').value);
+  const direction=document.getElementById('direction').value;
+  const composition=document.getElementById('composition').value;
+  const altitude=Number(document.getElementById('altitude').value);
+  if(!size || !speed){ alert("Please enter both meteor size and speed!"); return; }
+
+  let density=3000; 
+  if(composition==='metallic') density=7800;
+  else if(composition==='icy') density=1000;
+
+  const volume=(4/3)*Math.PI*Math.pow(size/2,3);
+  const mass=density*volume;
+  const kineticEnergy=0.5*mass*Math.pow(speed*1000,2);
+  const tntEquivalent=kineticEnergy/4.184e9;
+  const timeToImpact=(altitude/speed).toFixed(2);
+  const craterDiameter=(size*1.8*Math.pow(kineticEnergy/1e12,0.25)).toFixed(2);
+
+  simulationData={mass:mass.toFixed(2),energy:kineticEnergy.toExponential(2),tnt:tntEquivalent.toFixed(2),
+  time:timeToImpact,crater:craterDiameter,direction:direction,composition:composition,altitude:altitude};
+
+  document.getElementById('resultsText').innerText=
+  `Mass: ${simulationData.mass} kg | Energy: ${simulationData.energy} J (~${simulationData.tnt} tons TNT) | Time: ${simulationData.time} s | Crater: ${simulationData.crater} m`;
+
+  document.getElementById('showResultsBtn').style.display='inline-block';
+
+  const countdownNumbers=['3','2','1'];
+  let countIndex=0;
+  function showCountdown(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(earthImg,canvas.width/2-120,canvas.height/2-80,240,240);
+    ctx.font="bold 120px Arial";
+    ctx.fillStyle="rgba(255,255,255,0.9)";
+    ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillText(countdownNumbers[countIndex],canvas.width/2,canvas.height/2);
+    countIndex++;
+    if(countIndex<countdownNumbers.length) setTimeout(showCountdown,800);
+    else startSimulationAnimation();
+  }
+  showCountdown();
+
+  function startSimulationAnimation(){
+    const earthX = canvas.width / 2, earthY = canvas.height / 2 + 40;
+    let targetX = earthX, targetY = earthY;
+    switch(direction){
+      case 'N': targetY -= 100; break;
+      case 'S': targetY += 100; break;
+      case 'E': targetX += 150; break;
+      case 'W': targetX -= 150; break;
+      case 'NE': targetX += 120; targetY -= 80; break;
+      case 'NW': targetX -= 120; targetY -= 80; break;
+      case 'SE': targetX += 120; targetY += 80; break;
+      case 'SW': targetX -= 120; targetY += 80; break;
+    }
+
+    let meteorX = targetX, meteorY = targetY;
+    switch(direction){
+      case 'N': meteorY = -size*8; break;
+      case 'S': meteorY = canvas.height + size*8; break;
+      case 'E': meteorX = canvas.width + size*8; break;
+      case 'W': meteorX = -size*8; break;
+      case 'NE': meteorX = canvas.width + size*8; meteorY = -size*8; break;
+      case 'NW': meteorX = -size*8; meteorY = -size*8; break;
+      case 'SE': meteorX = canvas.width + size*8; meteorY = canvas.height + size*8; break;
+      case 'SW': meteorX = -size*8; meteorY = canvas.height + size*8; break;
+    }
+
+    const angle = Math.atan2(targetY - meteorY, targetX - meteorX);
+    let speedPx = speed * 0.2;
+    let impactOccurred = false;
+    let explosionParticles = [];
+    let shockwaveRadius = 0;
+    const pixelsPerMeter = 0.05;
+    let craterDrawn = false;
+    let dustParticles = [];
+    let earthShakeFrames = 0;
+
+    function createExplosion(x, y){
+      const explosionSound = new Audio("https://cdn.pixabay.com/download/audio/2021/08/04/audio_789d35cb08.mp3?filename=explosion-6055.mp3");
+      explosionSound.play();
+      for(let i=0; i<250; i++){
+        explosionParticles.push({x,y,radius:Math.random()*10+2,color:`hsl(${Math.random()*60},100%,${Math.random()*40+50}%)`,dx:(Math.random()-0.5)*18,dy:(Math.random()-0.5)*18,life:140});
+      }
+      const craterRadius = simulationData.crater * pixelsPerMeter;
+      for(let i=0;i<200;i++){
+        dustParticles.push({x,y,radius:Math.random()*craterRadius/5+2,dx:(Math.random()-0.5)*5,dy:Math.random()*-5-1,life:Math.random()*100+50,alpha:Math.random()*0.5+0.3});
+      }
+      earthShakeFrames = 40;
+    }
+
+    function drawCrater(x,y,radius){
+      ctx.save();
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath(); ctx.arc(x,y,radius,0,Math.PI*2); ctx.fill();
+      ctx.restore();
+    }
+
+    function animate(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      let earthOffsetX = 0, earthOffsetY = 0;
+      if(impactOccurred && earthShakeFrames>0){
+        earthOffsetX = (Math.random()-0.5)*12;
+        earthOffsetY = (Math.random()-0.5)*12;
+        earthShakeFrames--;
+      }
+
+      ctx.drawImage(earthImg, earthX-120+earthOffsetX, earthY-120+earthOffsetY, 240, 240);
+
+      const impactDistance = 120 + size/2;
+      if(!impactOccurred){
+        const dist = Math.sqrt((targetX - meteorX)**2 + (targetY - meteorY)**2);
+        if(dist > impactDistance){
+          const accelerationFactor = 1 + (400 - Math.min(dist,400))/5000;
+          speedPx *= accelerationFactor;
+          meteorX += Math.cos(angle) * speedPx;
+          meteorY += Math.sin(angle) * speedPx;
+
+          const glow = ctx.createRadialGradient(meteorX, meteorY, 0, meteorX, meteorY, size*1.8);
+          glow.addColorStop(0,'rgba(255,200,50,0.9)'); glow.addColorStop(1,'rgba(255,200,50,0)');
+          ctx.fillStyle=glow;
+          ctx.beginPath(); ctx.arc(meteorX, meteorY, size*1.8,0,Math.PI*2); ctx.fill();
+
+          ctx.drawImage(meteorImg, meteorX - size/2, meteorY - size/2, size, size);
+        } else { impactOccurred=true; createExplosion(targetX,targetY); }
+      } else {
+        if(!craterDrawn){
+          drawCrater(targetX,targetY,simulationData.crater*pixelsPerMeter);
+          
+          // الأرض المحروقة حول الفجوة
+          ctx.save();
+          ctx.globalAlpha = 0.6;
+          const gradient = ctx.createRadialGradient(targetX, targetY, simulationData.crater*pixelsPerMeter/2, targetX, targetY, simulationData.crater*pixelsPerMeter*1.5);
+          gradient.addColorStop(0,'rgba(50,20,20,0.8)');
+          gradient.addColorStop(1,'rgba(0,0,0,0)');
+          ctx.fillStyle = gradient;
+          ctx.beginPath();
+          ctx.arc(targetX,targetY,simulationData.crater*pixelsPerMeter*1.5,0,Math.PI*2);
+          ctx.fill();
+          ctx.restore();
+
+          craterDrawn=true;
+        }
+
+        const lightIntensity = Math.max(0, 1 - shockwaveRadius/(simulationData.crater*pixelsPerMeter*2));
+        ctx.beginPath();
+        ctx.arc(targetX, targetY, 120 + shockwaveRadius, 0, Math.PI*2);
+        ctx.strokeStyle = `rgba(255, 220, 180, ${lightIntensity})`;
+        ctx.lineWidth = 5;
+        ctx.stroke();
+        shockwaveRadius+=6;
+
+        explosionParticles.forEach((p,i)=>{
+          ctx.beginPath(); ctx.arc(p.x,p.y,p.radius,0,Math.PI*2); ctx.fillStyle=p.color; ctx.fill();
+          p.x += p.dx; p.y += p.dy; p.radius*=0.96; p.life--;
+          if(p.life<0) explosionParticles.splice(i,1);
+        });
+
+        dustParticles.forEach((p,i)=>{
+          ctx.beginPath(); ctx.arc(p.x,p.y,p.radius,0,Math.PI*2); ctx.fillStyle=`rgba(120,100,80,${p.alpha})`; ctx.fill();
+          p.x+=p.dx; p.y+=p.dy; p.life--; p.alpha*=0.96;
+          if(p.life<0) dustParticles.splice(i,1);
+        });
+      }
+
+      animationId=requestAnimationFrame(animate);
+    }
+    animate();
+  }
+}
+</script>
+</body>
+</html>

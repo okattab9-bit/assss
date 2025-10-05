@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Our Team 👩‍🚀</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style>
+/* ===== Body ===== */
+body {
+  margin:0;
+  padding:0;
+  font-family:'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color:#f0f0f0;
+  text-align:center;
+  overflow-x:hidden;
+  background:#0b0b0f;
+}
+
+/* ===== Navbar ===== */
+nav {
+  display:flex;
+  justify-content:center;
+  gap:15px;
+  padding:12px 25px;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(12px);
+  border-radius:30px;
+  box-shadow:0 8px 25px rgba(0,0,0,0.5);
+  position: fixed;
+  top:15px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:1000;
+  flex-wrap:wrap;
+  transition: all 0.3s ease;
+}
+nav a {
+  text-decoration:none;
+  padding:10px 20px;
+  font-weight:600;
+  border-radius:20px;
+  transition: all 0.3s ease;
+  color:#c0a0ff;
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+nav a:hover, nav a.active {
+  background: linear-gradient(135deg,#b16eff,#8f5aff);
+  color:#fff;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(177,110,255,0.5);
+}
+
+/* ===== Hero Section ===== */
+.hero {
+  position:relative;
+  background: linear-gradient(135deg,#5e2ca5,#8f5aff);
+  padding:120px 20px 60px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  overflow:hidden;
+}
+.star {
+  position:absolute;
+  width:2px;
+  height:2px;
+  background:white;
+  border-radius:50%;
+  opacity:0.8;
+  animation: twinkle 2s infinite alternate;
+}
+@keyframes twinkle {
+  from { opacity:0.2; transform: scale(1);}
+  to { opacity:1; transform: scale(1.2);}
+}
+.hero h1 {
+  font-size:3rem;
+  background: linear-gradient(135deg,#d49aff,#b16eff);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin-bottom:20px;
+}
+.hero p {
+  font-size:1.2rem;
+  max-width:700px;
+  margin:auto;
+  line-height:1.6;
+  color:#e0e0ff;
+}
+
+/* ===== Main Container ===== */
+main.container {
+  max-width:1000px;
+  margin:auto;
+  padding:50px 20px;
+  display:flex;
+  flex-direction:column;
+  gap:25px;
+}
+
+/* ===== Team Cards ===== */
+.team-card {
+  display:flex;
+  align-items:center;
+  gap:20px;
+  background: linear-gradient(135deg,rgba(30,20,50,0.85),rgba(20,10,40,0.85));
+  padding:20px;
+  border-radius:25px;
+  box-shadow:0 20px 50px rgba(0,0,0,0.6);
+  backdrop-filter: blur(12px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.team-card:hover {
+  transform: translateY(-8px);
+  box-shadow:0 30px 60px rgba(0,0,0,0.7);
+}
+.team-card img {
+  width:100px;
+  height:100px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid #b16eff;
+}
+.team-info {
+  text-align:left;
+}
+.team-info h2 {
+  margin:0;
+  font-size:1.4rem;
+  color:#b16eff;
+}
+.team-info h3 {
+  margin:4px 0;
+  font-size:1.1rem;
+  color:#e0c0ff;
+  font-weight:500;
+}
+.team-info p {
+  margin:5px 0 0;
+  font-size:1rem;
+  color:#f0f0f0;
+  line-height:1.5;
+}
+
+/* ===== Footer ===== */
+footer {
+  margin-top:40px;
+  padding:20px 0;
+  font-size:0.95rem;
+  color:#bbb;
+  text-align:center;
+}
+
+/* ===== Media Queries ===== */
+@media(max-width:768px){
+  main.container { padding:30px 15px; gap:20px; }
+  .team-card { flex-direction:column; text-align:center; }
+  .team-info { text-align:center; }
+  .team-card img { width:80px; height:80px; }
+  .hero h1 { font-size:2.2rem; }
+  .hero p { font-size:1rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav>
+  <a href="/">Home</a>
+  <a href="/about">About</a>
+  <a href="/data">Data</a>
+  <a href="/idea">Idea</a>
+  <a href="/simulation">Simulation</a>
+  <a href="/team" class="active">Team</a>
+</nav>
+
+<!-- Hero Section -->
+<div class="hero">
+  <script>
+    const hero = document.querySelector('.hero');
+    for(let i=0;i<80;i++){
+      const star = document.createElement('div');
+      star.className='star';
+      star.style.top=Math.random()*100+'%';
+      star.style.left=Math.random()*100+'%';
+      star.style.width=Math.random()*2+1+'px';
+      star.style.height=star.style.width;
+      star.style.animationDuration=(Math.random()*3+2)+'s';
+      hero.appendChild(star);
+    }
+  </script>
+  <h1>Meet Our Team</h1>
+  <p>Our talented team behind the Meteor Madness project and NASA Space Apps Challenge 2025.</p>
+</div>
+
+<!-- Main Content -->
+<main class="container">
+  <div class="team-card">
+    <img src="{{ url_for('static', filename='assets/Ahmed.jpg') }}" alt="Ahmed EL-Bashary">
+    <div class="team-info">
+      <h2>Ahmed EL-Bashary</h2>
+      <h3>Backend Developer</h3>
+      <p>Created the server-side logic, handled APIs, and managed data flow between frontend and databases.</p>
+    </div>
+  </div>
+
+  <div class="team-card">
+    <img src="{{ url_for('static', filename='assets/Ebrahim Edesoky.jpg') }}" alt="Ebrahim Eldesoky">
+    <div class="team-info">
+      <h2>Ebrahim Eldesoky</h2>
+      <h3>Frontend Developer</h3>
+      <p>Implemented the interactive meteor simulation and linked it with data sources for real-time visualization.</p>
+    </div>
+  </div>
+
+  <div class="team-card">
+    <img src="{{ url_for('static', filename='assets/Mohamed.jpg') }}" alt="Mohamed Ashraf">
+    <div class="team-info">
+      <h2>Mohamed Ashraf</h2>
+      <h3>Data Analyser</h3>
+      <p>Collected, processed, and analyzed meteor datasets to ensure accurate simulation and visual representation.</p>
+    </div>
+  </div>
+
+  <div class="team-card">
+    <img src="{{ url_for('static', filename='assets/Omar Hany.jpg') }}" alt="Omar Hany">
+    <div class="team-info">
+      <h2>Omar Hany</h2>
+      <h3>Project Manager</h3>
+      <p> Coordinated the team tasks, timelines, and ensured project goals are met efficiently and on schedule.</p>
+    </div>
+  </div>
+
+  <div class="team-card">
+    <img src="{{ url_for('static', filename='assets/Omar Khattab.jpg') }}" alt="Omar Khattab">
+    <div class="team-info">
+      <h2>Omar Khattab</h2>
+      <h3>UI/UX Designer</h3>
+      <p>Designed the website interface, the simulation pages, and ensured the project is visually appealing and user-friendly.</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <p>Made for NASA Space Apps Challenge 2025</p>
+</footer>
+
+</body>
+</html>

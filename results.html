@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulation Results 🌍</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body {
+  margin:0; padding:0; font-family:'Poppins','Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+  background:#0b0b0f; color:#fff; text-align:center; overflow-x:hidden;
+}
+canvas#starCanvas {
+  position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; background: transparent;
+}
+nav {
+  display:flex; justify-content:center; gap:15px; padding:12px 25px;
+  background: rgba(255,255,255,0.05); backdrop-filter: blur(12px);
+  border-radius:30px; box-shadow:0 8px 25px rgba(0,0,0,0.5);
+  position: fixed; top:15px; left:50%; transform:translateX(-50%); z-index:1000; flex-wrap:wrap;
+}
+nav a {
+  text-decoration:none; padding:10px 20px; font-weight:600; border-radius:20px;
+  transition: all 0.3s ease; color:#c0a0ff; background: rgba(255,255,255,0.08);
+}
+nav a:hover, nav a.active {
+  background: linear-gradient(135deg,#b16eff,#8f5aff); color:#fff;
+  transform: translateY(-3px) scale(1.05); box-shadow: 0 8px 20px rgba(177,110,255,0.5);
+}
+main.container {
+  max-width:950px; margin:120px auto 50px; padding:20px; display:flex; flex-direction:column; gap:30px; position:relative; z-index:1;
+}
+section {
+  background: rgba(30,20,50,0.85); padding:30px 35px; border-radius:25px;
+  box-shadow:0 20px 50px rgba(0,0,0,0.6);
+}
+h1,h2 { margin-bottom:20px; font-weight:600; }
+table {
+  width:100%; border-collapse:collapse; margin-top:20px; font-size:16px;
+}
+table, th, td { border:1px solid rgba(255,255,255,0.3); }
+th, td { padding:14px; text-align:center; }
+th { background: rgba(177,110,255,0.4); font-weight:600; }
+tr:nth-child(even) { background: rgba(255,255,255,0.05); }
+
+canvas.chartCanvas {
+  margin:25px auto; background:rgba(255,255,255,0.05); border-radius:15px; max-width:100%;
+}
+
+button {
+  padding:14px 30px; border-radius:12px; border:none; background: linear-gradient(135deg,#b16eff,#8f5aff);
+  color:#fff; font-weight:bold; cursor:pointer; transition:all 0.3s ease; margin-top:25px;
+}
+button:hover { transform:scale(1.05); box-shadow:0 0 20px rgba(177,110,0.7); }
+</style>
+</head>
+<body>
+
+<canvas id="starCanvas"></canvas>
+
+<nav>
+  <a href="/">Home</a>
+  <a href="/about">About</a>
+  <a href="/data">Data</a>
+  <a href="/idea">Idea</a>
+  <a href="/simulation">Simulation</a>
+  <a href="/team">Team</a>
+</nav>
+
+<main class="container">
+<section>
+<h1>Simulation Results</h1>
+<h2>Meteor Impact Data (Enhanced Scientific)</h2>
+<table>
+  <tr>
+    <th>Mass (kg)</th>
+    <th>Energy (J)</th>
+    <th>Equivalent TNT (tons)</th>
+    <th>Time to Impact (s)</th>
+    <th>Crater Diameter (m)</th>
+    <th>Direction</th>
+  </tr>
+  <tr id="resultsRow">
+    <td colspan="6">Loading...</td>
+  </tr>
+</table>
+
+<h2>Scientific Charts</h2>
+<canvas id="massChart" class="chartCanvas" height="220"></canvas>
+<canvas id="energyChart" class="chartCanvas" height="220"></canvas>
+<canvas id="tntChart" class="chartCanvas" height="220"></canvas>
+
+<button onclick="backToSimulation()">Back to Simulation</button>
+</section>
+</main>
+
+<script>
+// ===== Stars Background =====
+const starCanvas=document.getElementById('starCanvas');
+const sctx=starCanvas.getContext('2d');
+starCanvas.width=window.innerWidth;
+starCanvas.height=window.innerHeight;
+const stars=[];
+for(let i=0;i<200;i++){
+  stars.push({x:Math.random()*starCanvas.width,y:Math.random()*starCanvas.height,r:Math.random()*1.5,brightness:Math.random()});
+}
+function drawStars(){ 
+  sctx.clearRect(0,0,starCanvas.width,starCanvas.height); 
+  stars.forEach(s=>{
+    sctx.beginPath(); sctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    sctx.fillStyle=`rgba(255,255,255,${s.brightness})`; sctx.fill(); 
+    s.brightness += (Math.random()-0.5)*0.02; 
+    if(s.brightness>1)s.brightness=1; 
+    if(s.brightness<0.2)s.brightness=0.2;
+  }); 
+  requestAnimationFrame(drawStars);
+}
+drawStars();
+
+function backToSimulation(){ window.location.href = "/simulation"; }
+
+// ===== Load simulation data =====
+const resultsRow = document.getElementById('resultsRow');
+const rawData = `{{ data|tojson if not no_data else 'null' }}`;
+const data = JSON.parse(rawData);
+
+if(data){
+  // ===== Enhanced Physics =====
+  const compositions = {solid:7800, rocky:3500, icy:1000}; // density kg/m3
+  const density = compositions[data.composition] || 3500;
+  const radius = data.size / 2; // px assumed ~ meters for scale
+  const volume = (4/3)*Math.PI*Math.pow(radius,3);
+  const mass = density * volume;
+
+  // Air resistance approximation
+  const g = 9.81;
+  const h = data.altitude || 100000; // default 100 km
+  const v0 = data.speed * 1000; // km/s -> m/s
+  const Cd = 1.3, A = Math.PI*radius*radius, rho0 = 1.225;
+  const vFinal = v0 * Math.exp(- (Cd*A*rho0*h)/(2*mass) ); // approximate final velocity
+
+  const KE = 0.5*mass*Math.pow(vFinal,2);
+  const TNT = KE/4.184e9;
+
+  const crater = radius*2 * Math.pow(KE/1e12,0.25); // updated crater estimation
+  const timeImpact = (h/vFinal).toFixed(2);
+
+  resultsRow.innerHTML = `
+    <td>${mass.toFixed(2)}</td>
+    <td>${KE.toExponential(2)}</td>
+    <td>${TNT.toFixed(2)}</td>
+    <td>${timeImpact}</td>
+    <td>${crater.toFixed(2)}</td>
+    <td>${data.direction}</td>
+  `;
+
+  const labels = ['Meteor'];
+  new Chart(document.getElementById('massChart'), {
+    type:'bar', data:{labels, datasets:[{label:'Mass (kg)', data:[mass.toFixed(2)], backgroundColor:'rgba(177,110,255,0.7)', borderColor:'rgba(177,110,255,1)', borderWidth:1}]},
+    options:{responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}}}
+  });
+  new Chart(document.getElementById('energyChart'), {
+    type:'bar', data:{labels, datasets:[{label:'Kinetic Energy (J)', data:[KE.toExponential(2)], backgroundColor:'rgba(255,165,0,0.7)', borderColor:'rgba(255,165,0,1)', borderWidth:1}]},
+    options:{responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}}}
+  });
+  new Chart(document.getElementById('tntChart'), {
+    type:'bar', data:{labels, datasets:[{label:'TNT Equivalent (tons)', data:[TNT.toFixed(2)], backgroundColor:'rgba(50,205,50,0.7)', borderColor:'rgba(50,205,50,1)', borderWidth:1}]},
+    options:{responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}}}
+  });
+
+} else {
+  resultsRow.innerHTML = '<td colspan="6">No simulation data found. Run the simulation first.</td>';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,80 @@
+/* ===== General ===== */
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;}
+body{background: radial-gradient(circle at top,#0d0d0d,#111827);color:#fff;text-align:center;line-height:1.6;}
+a{text-decoration:none;}
+.container{max-width:1200px;margin:0 auto;padding:20px;}
+
+/* ===== Navigation ===== */
+nav{
+  display:flex;justify-content:center;gap:20px;padding:15px 0;
+  background:rgba(30,30,30,0.85);backdrop-filter:blur(6px);
+  box-shadow:0 4px 12px rgba(0,0,0,0.5);
+  border-bottom-left-radius:15px;border-bottom-right-radius:15px;
+  position:sticky;top:0;z-index:100;
+}
+nav a{
+  color:#4fd1c5;font-weight:600;padding:10px 18px;border-radius:8px;
+  transition:all 0.3s ease;
+}
+nav a:hover{
+  background:#4fd1c5;color:#111827;
+  transform:scale(1.1);
+  box-shadow:0 0 10px rgba(79,209,197,0.7);
+}
+
+/* ===== Header ===== */
+header{
+  padding:50px 20px;background:linear-gradient(135deg,#1c1c1c,#222);
+  border-radius:15px;margin:30px 0;box-shadow:0 8px 25px rgba(0,0,0,0.7);
+}
+header h1{font-size:3rem;color:#ffdd57;text-shadow:0 0 20px #ffdd57;}
+header p{font-size:1.2rem;color:#ccc;margin-top:10px;}
+
+/* ===== Form ===== */
+form{
+  background:rgba(20,20,20,0.95);padding:35px 40px;border-radius:15px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.6);margin:20px auto;max-width:500px;
+  transition:transform 0.3s ease;
+}
+form:hover{transform:translateY(-5px);}
+form label{display:block;margin:15px 0 8px;font-weight:bold;font-size:1rem;}
+form input,form select{
+  width:100%;padding:12px 15px;border-radius:10px;border:none;
+  margin-bottom:15px;background:#1c1c1c;color:#fff;font-size:1rem;
+}
+form input:focus,form select:focus{outline:none;box-shadow:0 0 8px #4fd1c5;}
+form button{
+  padding:14px 28px;border-radius:12px;border:none;
+  background:linear-gradient(45deg,#4fd1c5,#38b2ac);
+  color:#111827;font-weight:bold;font-size:1rem;cursor:pointer;transition:all 0.3s ease;
+}
+form button:hover{
+  transform:scale(1.05);box-shadow:0 0 18px rgba(79,209,197,0.8);
+}
+
+/* ===== Results ===== */
+#resultsText{
+  background:rgba(10,10,10,0.6);display:inline-block;padding:15px 20px;
+  border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,0.6);
+  font-size:1rem;margin-bottom:25px;min-width:300px;transition:all 0.3s ease;
+}
+
+/* ===== Canvas ===== */
+canvas{
+  display:block;margin:30px auto 50px;border-radius:20px;border:3px solid #4fd1c5;
+  background:#000;box-shadow:0 0 35px rgba(79,209,197,0.5);
+}
+
+/* ===== Footer ===== */
+footer{
+  padding:20px 0;color:#888;font-size:0.9rem;border-top:1px solid rgba(255,255,255,0.1);
+  margin-top:50px;
+}
+
+/* ===== Responsive ===== */
+@media(max-width:768px){
+  nav{flex-wrap:wrap;gap:12px;}
+  header h1{font-size:2.2rem;}
+  header p{font-size:1rem;}
+  form{width:90%;padding:25px 20px;}
+}
